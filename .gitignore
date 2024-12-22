@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+royal_service/docs/curl.sh
 __pycache__/
 *.py[cod]
 *$py.class

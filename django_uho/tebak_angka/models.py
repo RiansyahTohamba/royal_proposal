@@ -1,4 +1,15 @@
 from django.db import models
+from django.utils.timezone import now
+
+class GeminiLog(models.Model):
+    response_content = models.TextField()
+    finish_reason = models.CharField(max_length=20)
+    avg_logprobs = models.FloatField(null=True, blank=True)
+    prompt_token_count = models.IntegerField()
+    candidates_token_count = models.IntegerField()
+    total_token_count = models.IntegerField()
+    model_version = models.CharField(max_length=50)
+    timestamp = models.DateTimeField(default=now)
 
 class UploadedPhoto(models.Model):
     photo = models.ImageField(upload_to='uploaded_photos/')
@@ -13,3 +24,4 @@ class PredictionLog(models.Model):
 
 class Customer(models.Model):
     name = models.CharField(max_length=255)    
+    

@@ -1,67 +1,91 @@
 from django.shortcuts import render
-from django.conf import settings
 from .forms import PhotoUploadForm
-from .models import UploadedPhoto,PredictionLog
-from tensorflow.keras.models import load_model # type: ignore
-from PIL import Image
+from .models import PredictionLog, GeminiLog
 from django.db.models import Sum
+from django.db import models
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
-import numpy as np
-import os
-
-cnn_model_path = os.path.join(settings.BASE_DIR, 'ai_models', 'cnn_mnist_model.h5')
-cnn_model = load_model(cnn_model_path)
-
-def test(request):
+@csrf_exempt
+def process_response(request):
     if request.method == 'POST':
-        form = PhotoUploadForm(request.POST, request.FILES)
-    else:
-        form = PhotoUploadForm()
+        data = json.loads(request.body)
+
+        # Log the response to the database
+        log = GeminiLog(
+            response_content=data['candidates'][0]['content']['parts'][0]['text'],
+            finish_reason=data['candidates'][0]['finishReason'],
+            avg_logprobs=data['candidates'][0].get('avgLogprobs'),
+            prompt_token_count=data['usageMetadata']['promptTokenCount'],
+            candidates_token_count=data['usageMetadata']['candidatesTokenCount'],
+            total_token_count=data['usageMetadata']['totalTokenCount'],
+            model_version=data['modelVersion']
+        )
+        log.save()
+
+        # Forward the relevant data to Flutter
+        return JsonResponse({
+            "response": data['candidates'][0]['content']['parts'][0]['text'],
+            "model_version": data['modelVersion']
+        }, status=200)
     
-    return render(request, 'tebak_angka/form_test.html', {'form': form})
+# 2. Handler to fetch Gemini logs for the dashboard
+def get_logs(request):
+    if request.method == 'GET':
+        logs = GeminiLog.objects.all().order_by('-timestamp')
+        logs_data = [
+            {
+                "id": log.id,
+                "response_content": log.response_content,
+                "finish_reason": log.finish_reason,
+                "avg_logprobs": log.avg_logprobs,
+                "prompt_token_count": log.prompt_token_count,
+                "candidates_token_count": log.candidates_token_count,
+                "total_token_count": log.total_token_count,
+                "model_version": log.model_version,
+                "timestamp": log.timestamp.strftime('%Y-%m-%d %H:%M:%S')
+            } for log in logs
+        ]
+        return JsonResponse(logs_data, safe=False, status=200)
 
-def cnn_prediction(request):
-    if request.method == 'POST':
-        form = PhotoUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            uploaded_photo = form.save()
-            image_path = uploaded_photo.photo.path
-            # convert L means Grayscale
-            img = Image.open(image_path).convert('L').resize((28, 28))
-            img_array = np.array(img).reshape(1, 28, 28, 1) / 255.0
+# 3. Handler for aggregated log statistics
+def get_aggregates(request):
+    if request.method == 'GET':
+        total_logs = GeminiLog.objects.count()
+        avg_prompt_tokens = GeminiLog.objects.all().aggregate(models.Avg('prompt_token_count'))['prompt_token_count__avg']
+        avg_candidates_tokens = GeminiLog.objects.all().aggregate(models.Avg('candidates_token_count'))['candidates_token_count__avg']
+        total_tokens_used = GeminiLog.objects.all().aggregate(models.Sum('total_token_count'))['total_token_count__sum']
 
-            predictions = cnn_model.predict(img_array)
-            result = np.argmax(predictions, axis=1)  
-            
-            confidence_score = np.max(predictions)
+        aggregates = {
+            "total_logs": total_logs,
+            "avg_prompt_tokens": round(avg_prompt_tokens, 2) if avg_prompt_tokens else 0,
+            "avg_candidates_tokens": round(avg_candidates_tokens, 2) if avg_candidates_tokens else 0,
+            "total_tokens_used": total_tokens_used if total_tokens_used else 0
+        }
+        return JsonResponse(aggregates, status=200)
 
-            return render(request, 'tebak_angka/result.html', 
-                          {'result': result , 
-                           'confidence_score': confidence_score,
-                            'uploaded_photo_url': uploaded_photo.photo.url,  
-                           })
-    else:
-        form = PhotoUploadForm()
-    
-    return render(request, 'tebak_angka/cnn_predict.html', {'form': form})
+# 4. Recommendation: Add a handler to limit usage
+def check_usage_limit(request):
+    if request.method == 'GET':
+        limit = 100000  # Example token limit
+        total_tokens_used = GeminiLog.objects.all().aggregate(models.Sum('total_token_count'))['total_token_count__sum']
+        total_tokens_used = total_tokens_used if total_tokens_used else 0
+
+        if total_tokens_used > limit:
+            return JsonResponse({"message": "Usage limit exceeded", "tokens_used": total_tokens_used, "limit": limit}, status=403)
+        else:
+            return JsonResponse({"message": "Within usage limit", "tokens_used": total_tokens_used, "limit": limit}, status=200)
 
 def cnn_prediction_log(request):
     if request.method == 'POST':
         form = PhotoUploadForm(request.POST, request.FILES)
         if form.is_valid():
-            uploaded_photo = form.save()
-            image_path = uploaded_photo.photo.path
-            img = Image.open(image_path).convert('L').resize((28, 28))
-            img_array = np.array(img).reshape(1, 28, 28, 1) / 255.0
-
-            # Prediksi dengan model
-            predictions = cnn_model.predict(img_array)
-            result = np.argmax(predictions, axis=1)  # Sesuaikan dengan kebutuhan output model
-            confidence_score = np.max(predictions)
+            result = 3
+            confidence_score = 7.3
 
             # Simpan log prediksi
-            log = PredictionLog.objects.create(
-                photo=uploaded_photo,
+            log = PredictionLog.objects.create(                
                 prediction=str(result[0]),
                 confidence_score=confidence_score
             )
@@ -69,7 +93,7 @@ def cnn_prediction_log(request):
             return render(request, 'tebak_angka/result.html', {
                 'result': result,
                 'confidence_score': confidence_score,
-                'uploaded_photo_url': uploaded_photo.photo.url,
+                
                 'price': log.price
             })
     else:
@@ -88,35 +112,3 @@ def prediction_log_list(request):
         'total_hits': total_hits,
         'total_cost': total_cost
     })
-
-
-def photo_upload(request):
-    if request.method == 'POST':
-        form = PhotoUploadForm(request.POST, request.FILES)
-        if form.is_valid():
-            # Simpan file foto yang diunggah
-            uploaded_photo = form.save()
-
-            # Path ke file foto yang diunggah
-            image_path = uploaded_photo.photo.path
-            img = Image.open(image_path).convert('L').resize((28, 28))
-            img_array = np.array(img).reshape(1, 28, 28, 1) / 255.0
-
-            # Prediksi dengan model
-            predictions = model.predict(img_array)
-            result = np.argmax(predictions, axis=1)  # Sesuaikan dengan kebutuhan output model
-            confidence_score = np.max(predictions)
-            
-            # simpan log
-            # PredictionLog.objects.create(photo=photo, prediction=str(prediction,confidence_score))
-
-            # Tampilkan hasil prediksi
-            return render(request, 'tebak_angka/result.html', 
-                          {'result': result , 
-                           'confidence_score': confidence_score,
-                            'uploaded_photo_url': uploaded_photo.photo.url,  
-                           })
-    else:
-        form = PhotoUploadForm()
-    
-    return render(request, 'tebak_angka/upload.html', {'form': form})

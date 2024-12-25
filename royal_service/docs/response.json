@@ -1,0 +1,22 @@
+{
+    "candidates": [ 
+      {
+        "content": {  
+          "parts": [  
+            {  
+              "text": "Artificial intelligence (AI) is a broad field encompassing many techniques, but at its core, it aims to create systems that can perform tasks that typically require human intelligence.  These tasks include things like learning, problem-solving, decision-making, speech recognition, and visual perception.  There's no single \"how it works\" answer, but here's a breakdown of common approaches:\n\n**1. Machine Learning (ML):** This is perhaps the most prominent approach to AI.  "        
+            }
+          ],
+          "role": "model"  
+        },
+        "finishReason": "STOP",
+        "avgLogprobs": -0.16109741168195793
+      }
+    ],
+    "usageMetadata": {
+      "promptTokenCount": 4,
+      "candidatesTokenCount": 714,
+      "totalTokenCount": 718
+    },
+    "modelVersion": "gemini-1.5-flash"  
+}

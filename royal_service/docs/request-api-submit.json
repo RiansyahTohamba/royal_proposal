@@ -1,0 +1,22 @@
+{
+    "candidates": [
+        {
+            "content": {
+                "parts": [
+                    {
+                        "text": "say hi!"
+                    }
+                ],
+                "role": "model"
+            },
+            "finishReason": "STOP",
+            "avgLogprobs": -0.16109741168195793
+        }
+    ],
+    "usageMetadata": {
+        "promptTokenCount": 10,
+        "candidatesTokenCount": 20,
+        "totalTokenCount": 30
+    },
+    "modelVersion": "gemini-1.5-flash"
+}

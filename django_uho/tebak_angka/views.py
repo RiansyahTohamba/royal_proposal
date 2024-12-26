@@ -14,6 +14,7 @@ from django.middleware.csrf import get_token
 
 api_key = os.getenv("GEMINI_API_KEY")
 
+VALID_API_KEYS = {os.getenv("ROYAL_API_KEY")} 
 
 RATE_LIMITS = {
     "RPM": 15,
@@ -41,15 +42,20 @@ def get_csrf_token(request):
 
 
 def real_ai_submit(request):
+    req_royal_api_key = request.headers.get('X-API-KEY') 
+    
+    if req_royal_api_key not in VALID_API_KEYS:
+        return JsonResponse({'error': 'Invalid API key'}, status=401) 
+
     if request.method == 'POST':
         data = json.loads(request.body)
 
         # Check rate limits
-        stats = check_rate_limits()
-        if stats.requests_today >= RATE_LIMITS['RPD']:
-            return JsonResponse({"error": "Daily request limit exceeded"}, status=429)
-        if stats.requests_today / ((now() - stats.last_reset).seconds / 60) >= RATE_LIMITS['RPM']:
-            return JsonResponse({"error": "Requests per minute limit exceeded"}, status=429)
+        # stats = check_rate_limits()
+        # if stats.requests_today >= RATE_LIMITS['RPD']:
+        #     return JsonResponse({"error": "Daily request limit exceeded"}, status=429)
+        # if stats.requests_today / ((now() - stats.last_reset).seconds / 60) >= RATE_LIMITS['RPM']:
+        #     return JsonResponse({"error": "Requests per minute limit exceeded"}, status=429)
 
         # total_tokens = data['usageMetadata']['totalTokenCount']
         # if stats.tokens_today + total_tokens > RATE_LIMITS['TPM']:
@@ -99,6 +105,11 @@ def reset_stats_daily():
 
 @csrf_exempt
 def mock_ai_submit(request):
+    req_royal_api_key = request.headers.get('X-API-KEY') 
+    
+    if req_royal_api_key not in VALID_API_KEYS:
+        return JsonResponse({'error': 'Invalid API key'}, status=401) 
+
     if request.method == 'POST':
         data = json.loads(request.body)
 

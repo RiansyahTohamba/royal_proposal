@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:royal_ai/pages/home_screen.dart';
 import 'package:royal_ai/provider/chat_provider.dart';
 import 'package:royal_ai/provider/settings_provider.dart';
+import 'package:royal_ai/screens/splash_screen.dart';
 import 'package:royal_ai/themes/my_theme.dart';
 
 void main() async {
@@ -45,10 +44,9 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
       theme: context.watch<SettingsProvider>().isDarkMode ? darkTheme : lightTheme,
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
+      home:  SplashScreen(),
     );
   }
 }

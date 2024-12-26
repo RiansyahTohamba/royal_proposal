@@ -5,6 +5,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:royal_ai/hive/settings.dart';
+import 'package:royal_ai/screens/login_screen.dart';
 import 'package:royal_ai/widgets/widgets/build_diaplay_image.dart';
 
 import '../hive/boxes.dart';
@@ -70,118 +71,124 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('Profile'),
+          title: Text('Profile'),
           centerTitle: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           actions: [
             IconButton(
-              icon: const Icon(Icons.check),
+              icon: Icon(Icons.logout_outlined),
               onPressed: () {
-                // save data
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()),
+                );
               },
             ),
           ],
         ),
         body: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20.0,
-            vertical: 20.0,
-          ),
-          child: SingleChildScrollView(
-            child: Column(
+            padding: EdgeInsets.symmetric(
+              horizontal: 20.0,
+              vertical: 20.0,
+            ),
+            child: SingleChildScrollView(
+                child: Column(
               children: [
                 Center(
                   child: BuildDisplayImage(
-                      file: file,
-                      userImage: userImage,
-                      onPressed: () {
-                        // open camera or gallery
-                        pickImage();
-                      }),
+                    file: file,
+                    userImage: userImage,
+                    onPressed: () {
+                      // open camera or gallery
+                      pickImage();
+                    },
+                  ),
                 ),
-
-                const SizedBox(height: 20.0),
-
+                SizedBox(height: 20.0),
                 // user name
                 Text(userName, style: Theme.of(context).textTheme.titleLarge),
+                SizedBox(height: 10.0),
 
-                const SizedBox(height: 40.0),
+                // Add email or other profile details
+                Text(
+                  'Email: royalservices@example.com', // Replace with actual email data
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 10.0),
+
+                // Add phone number or other info
+                Text(
+                  'Phone: +1234567890', // Replace with actual phone number data
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                SizedBox(height: 40.0),
 
                 ValueListenableBuilder<Box<Settings>>(
-                    valueListenable: Boxes.getSettings().listenable(),
-                    builder: (context, box, child) {
-                      if (box.isEmpty) {
-                        return Column(
-                          children: [
-                            // ai voice
-                            SettingsTile(
-                                icon: Icons.mic,
-                                title: 'Enable AI voice',
-                                value: false,
-                                onChanged: (value) {
-                                  final settingProvider =
-                                      context.read<SettingsProvider>();
-                                  settingProvider.toggleSpeak(
-                                    value: value,
-                                  );
-                                }),
-
-                            const SizedBox(height: 10.0),
-
-                            // theme
-                            SettingsTile(
-                                icon: Icons.light_mode,
-                                title: 'Theme',
-                                value: false,
-                                onChanged: (value) {
-                                  final settingProvider =
-                                      context.read<SettingsProvider>();
-                                  settingProvider.toggleDarkMode(
-                                    value: value,
-                                  );
-                                }),
-                          ],
-                        );
-                      } else {
-                        final settings = box.getAt(0);
-                        return Column(
-                          children: [
-                            // ai voice
-                            SettingsTile(
-                                icon: Icons.mic,
-                                title: 'Enable AI voice',
-                                value: settings!.shouldSpeak,
-                                onChanged: (value) {
-                                  final settingProvider =
-                                      context.read<SettingsProvider>();
-                                  settingProvider.toggleSpeak(
-                                    value: value,
-                                  );
-                                }),
-
-                            const SizedBox(height: 10.0),
-
-                            // theme
-                            SettingsTile(
-                                icon: settings.isDarkTheme
-                                    ? Icons.dark_mode
-                                    : Icons.light_mode,
-                                title: 'Theme',
-                                value: settings.isDarkTheme,
-                                onChanged: (value) {
-                                  final settingProvider =
-                                      context.read<SettingsProvider>();
-                                  settingProvider.toggleDarkMode(
-                                    value: value,
-                                  );
-                                }),
-                          ],
-                        );
-                      }
-                    })
+                  valueListenable: Boxes.getSettings().listenable(),
+                  builder: (context, box, child) {
+                    if (box.isEmpty) {
+                      return Column(
+                        children: [
+                          // ai voice
+                          SettingsTile(
+                            icon: Icons.mic,
+                            title: 'Enable AI voice',
+                            value: false,
+                            onChanged: (value) {
+                              final settingProvider =
+                                  context.read<SettingsProvider>();
+                              settingProvider.toggleSpeak(value: value);
+                            },
+                          ),
+                          SizedBox(height: 10.0),
+                          // theme
+                          SettingsTile(
+                            icon: Icons.light_mode,
+                            title: 'Theme',
+                            value: false,
+                            onChanged: (value) {
+                              final settingProvider =
+                                  context.read<SettingsProvider>();
+                              settingProvider.toggleDarkMode(value: value);
+                            },
+                          ),
+                        ],
+                      );
+                    } else {
+                      final settings = box.getAt(0);
+                      return Column(
+                        children: [
+                          // ai voice
+                          SettingsTile(
+                            icon: Icons.mic,
+                            title: 'Enable AI voice',
+                            value: settings!.shouldSpeak,
+                            onChanged: (value) {
+                              final settingProvider =
+                                  context.read<SettingsProvider>();
+                              settingProvider.toggleSpeak(value: value);
+                            },
+                          ),
+                          SizedBox(height: 10.0),
+                          // theme
+                          SettingsTile(
+                            icon: settings.isDarkTheme
+                                ? Icons.dark_mode
+                                : Icons.light_mode,
+                            title: 'Theme',
+                            value: settings.isDarkTheme,
+                            onChanged: (value) {
+                              final settingProvider =
+                                  context.read<SettingsProvider>();
+                              settingProvider.toggleDarkMode(value: value);
+                            },
+                          ),
+                        ],
+                      );
+                    }
+                  },
+                ),
               ],
-            ),
-          ),
-        ));
+            ))));
   }
 }

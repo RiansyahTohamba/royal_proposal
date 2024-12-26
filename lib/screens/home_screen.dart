@@ -6,7 +6,7 @@ import 'package:royal_ai/screens/profile_screen.dart';
 import 'package:royal_ai/provider/chat_provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -15,9 +15,9 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   // list of screens
   final List<Widget> _screens = [
-    const ChatHistoryScreen(),
-    const ChatScreen(),
-    const ProfileScreen(),
+    ChatHistoryScreen(),
+    ChatScreen(),
+    ProfileScreen(),
   ];
 
   @override
@@ -40,7 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 chatProvider.setCurrentIndex(newIndex: index);
                 chatProvider.pageController.jumpToPage(index);
               },
-              items: const [
+              items: [
                 BottomNavigationBarItem(
                   icon: Icon(Icons.history),
                   label: 'Chat History',

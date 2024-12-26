@@ -1,12 +1,24 @@
-
-# make migration
-change model and create migration 
-
-python manage.py makemigrations
+# getting started
 
 
-# how to migrate db in django apps
-python.exe ./manage.py migrate
+Install dependencies first
 
-# running web server
-python.exe ./manage.py runserver
+```bash
+pip install -r requirements.txt
+```
+initiate .env
+```bash
+cp env-example .env
+```
+
+## running application
+run in local dev
+```bash
+python manage.py runserver
+```
+run in production
+
+```bash
+python manage.py runserver 8899
+```
+

@@ -111,31 +111,11 @@ def mock_ai_submit(request):
         return JsonResponse({'error': 'Invalid API key'}, status=401) 
 
     if request.method == 'POST':
-        data = json.loads(request.body)
-
-        # Simulate the response
-        response_text = f"Simulated response for prompt: {data.get('prompt')}"
         simulated_response = {
-            "candidates": [
-                {
-                    "content": {
-                        "parts": [
-                            {
-                                "text": response_text
-                            }
-                        ]
-                    },
-                    "finishReason": "STOP",
-                    "avgLogprobs": -0.12345
-                }
-            ],
-            "usageMetadata": {
-                "promptTokenCount": len(data.get('prompt', '')) // 4,  # Approximation
-                "candidatesTokenCount": len(response_text) // 4,  # Approximation
-                "totalTokenCount": (len(data.get('prompt', '')) + len(response_text)) // 4
-            },
-            "modelVersion": "mock-gemini-1.5"
+            "response": "hi, i just gemini mock response. no hard feeling. stay calm.",
+            "model_version": "gemini-1.5-flash"
         }
+
 
         return JsonResponse(simulated_response, status=200)
         

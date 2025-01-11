@@ -11,6 +11,12 @@ class GeminiLog(models.Model):
     model_version = models.CharField(max_length=50)
     timestamp = models.DateTimeField(default=now)
 
+class UsageStats(models.Model):
+    date = models.DateField(default=now)
+    requests_today = models.IntegerField(default=0)
+    tokens_today = models.IntegerField(default=0)
+    last_reset = models.DateTimeField(default=now)
+
 class UploadedPhoto(models.Model):
     photo = models.ImageField(upload_to='uploaded_photos/')
     uploaded_at = models.DateTimeField(auto_now_add=True)

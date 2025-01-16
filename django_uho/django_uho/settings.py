@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tebak_angka',
+    'ai_hr',
 ]
 
 MIDDLEWARE = [

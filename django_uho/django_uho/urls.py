@@ -9,6 +9,7 @@ urlpatterns = [
     path('', views.home, name='home'),  # Root URL menuju view home
     path('admin/', admin.site.urls),
     path('api/', include('tebak_angka.urls')),
+    path('ai_hr/', include('ai_hr.urls')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

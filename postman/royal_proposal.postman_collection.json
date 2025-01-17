@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "4d163006-175d-4d8e-b948-4f7c8457432b",
+		"name": "royal_proposal",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "299027",
+		"_collection_link": "https://winter-meteor-496050.postman.co/workspace/My-Workspace~08af2f3c-5c10-46dc-800f-0eb91172a592/collection/299027-4d163006-175d-4d8e-b948-4f7c8457432b?action=share&source=collection_link&creator=299027"
+	},
+	"item": [
+		{
+			"name": "chatbot-ai-submit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-CSRFToken",
+						"value": "aERQNwTVkCW46DvuobQyXdtY9IwfnTFVfgNlJCYsAKAbgPsnTAjNzagC1Mf64jdr",
+						"type": "text"
+					},
+					{
+						"key": "X-API-KEY",
+						"value": "{{royal_api_key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prompt\": \"how to preparing reading test in IELTS exams?\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{hostname}}/api/real-ai-submit",
+					"protocol": "http",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"api",
+						"real-ai-submit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "chatbot-mock-ai-submit",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-CSRFToken",
+						"value": "aERQNwTVkCW46DvuobQyXdtY9IwfnTFVfgNlJCYsAKAbgPsnTAjNzagC1Mf64jdr",
+						"type": "text"
+					},
+					{
+						"key": "X-API-KEY",
+						"value": "{{royal_api_key}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"prompt\": \"how to preparing reading test in IELTS exams?\"\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://{{hostname}}/api/mock-ai-submit",
+					"protocol": "http",
+					"host": [
+						"{{hostname}}"
+					],
+					"path": [
+						"api",
+						"mock-ai-submit"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "token-csrf",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/api/token-csrf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"api",
+						"token-csrf"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "virtual CV - list candidates",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8000/ai_hr/candidates/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"ai_hr",
+						"candidates",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "virtual CV - add candidates",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "cv",
+							"type": "file",
+							"src": "/C:/Users/HP/Documents/pengabdian/Berita Acara Realisasi Pengabdian Pelatihan AI Desember 2024.pdf"
+						},
+						{
+							"key": "name",
+							"value": "RIAN",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "muh.riansyaht@uho.ac.id",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8000/ai_hr/candidates/",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8000",
+					"path": [
+						"ai_hr",
+						"candidates",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

@@ -3,6 +3,6 @@ curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:g
 -X POST \
 -d '{
   "contents": [{
-    "parts":[{"text": "said hi"}]
+    "parts":[{"text": "what is Artificial intelligence?"}]
     }]
    }'

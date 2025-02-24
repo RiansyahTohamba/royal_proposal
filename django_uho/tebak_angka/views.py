@@ -51,15 +51,15 @@ def real_ai_submit(request):
         data = json.loads(request.body)
 
         # Check rate limits
-        # stats = check_rate_limits()
-        # if stats.requests_today >= RATE_LIMITS['RPD']:
-        #     return JsonResponse({"error": "Daily request limit exceeded"}, status=429)
-        # if stats.requests_today / ((now() - stats.last_reset).seconds / 60) >= RATE_LIMITS['RPM']:
-        #     return JsonResponse({"error": "Requests per minute limit exceeded"}, status=429)
+        stats = check_rate_limits()
+        if stats.requests_today >= RATE_LIMITS['RPD']:
+            return JsonResponse({"error": "Daily request limit exceeded"}, status=429)
+        if stats.requests_today / ((now() - stats.last_reset).seconds / 60) >= RATE_LIMITS['RPM']:
+            return JsonResponse({"error": "Requests per minute limit exceeded"}, status=429)
 
-        # total_tokens = data['usageMetadata']['totalTokenCount']
-        # if stats.tokens_today + total_tokens > RATE_LIMITS['TPM']:
-        #     return JsonResponse({"error": "Tokens per minute limit exceeded"}, status=429)
+        total_tokens = data['usageMetadata']['totalTokenCount']
+        if stats.tokens_today + total_tokens > RATE_LIMITS['TPM']:
+            return JsonResponse({"error": "Tokens per minute limit exceeded"}, status=429)
 
         # Prepare the request to the Gemini API
         gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"

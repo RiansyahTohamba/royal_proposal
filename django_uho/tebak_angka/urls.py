@@ -7,6 +7,8 @@ urlpatterns = [
     
     path('api/mock-ai-submit', views.mock_ai_submit, name='mock AI submit'),
     path('html/mockgemini', views.html_mock_gemini, name='HTML mock AI submit'),
+    path('html/realgemini', views.html_real_gemini, name='HTML REAL AI submit'),
+    
     path('ai-log', views.get_logs, name='log of ai usage'),
     path('usage-summary', views.get_aggregates, name='aggregate log'),
     path('usage-limit', views.check_usage_limit, name='AI limit'),

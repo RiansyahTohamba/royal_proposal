@@ -12,7 +12,7 @@ from django.utils.timezone import now
 import os
 from django.middleware.csrf import get_token
 
-api_key = os.getenv("GEMINI_API_KEY")
+gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 VALID_API_KEYS = {os.getenv("ROYAL_API_KEY")} 
 
@@ -69,7 +69,7 @@ def real_ai_submit(request):
         }]}
         
         # Send the request to the Gemini API
-        response = requests.post(f"{gemini_url}?key={api_key}", headers=headers, json=gemini_payload)
+        response = requests.post(f"{gemini_url}?key={gemini_api_key}", headers=headers, json=gemini_payload)
 
         if response.status_code != 200:
             return JsonResponse({"error": "Failed to fetch data from Gemini API", "details": response.text}, status=response.status_code)
@@ -120,6 +120,53 @@ def mock_ai_submit(request):
 
 
         return JsonResponse(simulated_response, status=200)
+
+@csrf_exempt
+def html_real_gemini(request):
+    if request.method == 'POST':
+        try:
+            print(gemini_api_key)
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
+            print("[DEBUG] User message:", user_message)
+
+            # Prepare the request to the Gemini API
+            gemini_url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent"
+            headers = {"Content-Type": "application/json"}
+            gemini_payload = {
+                "contents": [{
+                    "parts": [{"text": user_message}]
+                }]
+            }
+
+            # Send the request to the Gemini API
+            response = requests.post(f"{gemini_url}?key={gemini_api_key}", headers=headers, json=gemini_payload)
+            print("[DEBUG] Gemini API response status:", response.status_code)
+            print("[DEBUG] Gemini API response body:", response.text)
+
+            if response.status_code != 200:
+                return JsonResponse({
+                    "error": "Failed to fetch data from Gemini API",
+                    "details": response.text
+                }, status=response.status_code)
+
+            gemini_response = response.json()
+
+            return JsonResponse({
+                "response": gemini_response['candidates'][0]['content']['parts'][0]['text'],
+                "model_version": gemini_response['modelVersion']
+            }, status=200)
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            return JsonResponse({
+                "error": "Server error",
+                "details": str(e)
+            }, status=500)
+
+    else:
+        return JsonResponse({'error': 'Invalid request method'}, status=405)
 
 @csrf_exempt
 def html_mock_gemini(request):

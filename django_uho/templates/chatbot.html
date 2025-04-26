@@ -2,21 +2,29 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Chatbot Stub - Gemini Mock</title>
+    <title>Chatbot with URL Picker</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; }
         #chatbox { border: 1px solid #ccc; padding: 10px; width: 500px; height: 400px; overflow-y: auto; margin-bottom: 10px; }
         .message { margin-bottom: 10px; }
         .user { font-weight: bold; color: blue; }
         .bot { font-weight: bold; color: green; }
-        #input-area { display: flex; }
+        #input-area { display: flex; gap: 5px; }
         #user-input { flex: 1; padding: 5px; }
         #send-btn { padding: 5px 10px; }
     </style>
 </head>
 <body>
 
-<h2>Chat with Gemini Mock</h2>
+<h2>Chat with Gemini (Mock or Real)</h2>
+
+<div>
+    <label for="url-picker">Choose Server:</label>
+    <select id="url-picker">
+        <option value="/ai/html/mockgemini">Mock Gemini</option>
+        <option value="/ai/html/realgemini">Real Gemini</option>
+    </select>
+</div>
 
 <div id="chatbox">
     <!-- Messages will appear here -->
@@ -31,13 +39,24 @@
     const chatbox = document.getElementById('chatbox');
     const userInput = document.getElementById('user-input');
     const sendBtn = document.getElementById('send-btn');
+    const urlPicker = document.getElementById('url-picker');
 
-    function appendMessage(sender, text) {
+    let typingIndicator;  // global typing indicator
+
+    function appendMessage(sender, text, id = null) {
         const div = document.createElement('div');
         div.classList.add('message');
+        if (id) div.id = id;
         div.innerHTML = `<span class="${sender}">${sender === 'user' ? 'You' : 'Bot'}:</span> ${text}`;
         chatbox.appendChild(div);
         chatbox.scrollTop = chatbox.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+        if (typingIndicator) {
+            typingIndicator.remove();
+            typingIndicator = null;
+        }
     }
 
     sendBtn.addEventListener('click', function() {
@@ -47,12 +66,20 @@
         appendMessage('user', message);
         userInput.value = '';
 
-        // Kirim POST ke server
-        fetch(window.location.href, {
+        const selectedUrl = urlPicker.value;
+
+        // Tampilkan "Bot is typing..."
+        typingIndicator = document.createElement('div');
+        typingIndicator.classList.add('message');
+        typingIndicator.innerHTML = `<span class="bot">Bot:</span> <i>typing...</i>`;
+        chatbox.appendChild(typingIndicator);
+        chatbox.scrollTop = chatbox.scrollHeight;
+
+        fetch(selectedUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-API-KEY': 'your-valid-api-key-here'  // Ganti API key valid
+                'X-API-KEY': 'your-valid-api-key-here'  // Pastikan API key valid
             },
             body: JSON.stringify({ message: message })
         })
@@ -63,6 +90,8 @@
             return response.json();
         })
         .then(data => {
+            removeTypingIndicator(); // Hapus "typing..." setelah dapat jawaban
+
             if (data.response) {
                 appendMessage('bot', data.response);
             } else if (data.error) {
@@ -71,11 +100,11 @@
         })
         .catch(error => {
             console.error('Error:', error);
+            removeTypingIndicator(); // Hapus typing meskipun error
             appendMessage('bot', 'Error contacting server.');
         });
     });
 
-    // Allow Enter key to send
     userInput.addEventListener('keyup', function(e) {
         if (e.key === 'Enter') {
             sendBtn.click();

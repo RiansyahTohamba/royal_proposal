@@ -123,26 +123,24 @@ def mock_ai_submit(request):
 
 @csrf_exempt
 def html_mock_gemini(request):
-    req_royal_api_key = request.headers.get('X-API-KEY') 
     
-    if req_royal_api_key not in VALID_API_KEYS:
-        return JsonResponse({'error': 'Invalid API key'}, status=401) 
-
     if request.method == 'GET':
-        return render(request, 'tebak_angka/chatbot.html')
-    
+        return render(request, 'chatbot.html')
+
     elif request.method == 'POST':
-        stub_response = {
-            "response": """hi, i just gemini mock response. no hard feeling. stay calm. 
-                Preparing for the IELTS Reading test requires a strategic approach focusing on several key areas. Here's a breakdown of how to prepare effectively:\n\n**1. Understanding the Test Format:**\n\n* **Familiarize yourself with the test structure:** The IELTS Academic Reading test has three long passages, each followed by 13-14 questions. The General Training Reading test also has three passages but with slightly different question types and themes. Understand the types of questions you'll encounter (multiple choice, matching headings, true/false/not given, sentence completion, short-answer questions, identifying information, classifying information, summarizing information, diagram labelling, etc.). Practice each question type extensively.\n* **Time management:** You have a limited time (60 minutes for Academic and General Training), so practice completing passages within the time constraints. Learn to skim and scan effectively to find specific information quickly.\n\n**
-            """,
-            "model_version": "gemini-1.5-flash"
-        }
-        return render(request, 'tebak_angka/chatbot.html', {
-                'result': stub_response,
-            })
+        try:
+            data = json.loads(request.body)
+            user_message = data.get('message', '')
 
-
+            # Stub response
+            stub_response = {
+                "response": """hi, i just gemini mock response. no hard feeling. stay calm. 
+                Preparing for the IELTS Reading test requires a strategic approach focusing on several key areas.""",
+                "model_version": "gemini-1.5-flash"
+            }
+            return JsonResponse(stub_response)
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
 
 # 2. Handler to fetch Gemini logs for the dashboard
 def get_logs(request):

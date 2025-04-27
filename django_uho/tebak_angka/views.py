@@ -40,7 +40,7 @@ def check_rate_limits():
 def get_csrf_token(request):
     return JsonResponse({"csrfToken": get_token(request)})
 
-
+@csrf_exempt
 def real_ai_submit(request):
     req_royal_api_key = request.headers.get('X-API-KEY') 
     
@@ -72,7 +72,8 @@ def real_ai_submit(request):
         response = requests.post(f"{gemini_url}?key={gemini_api_key}", headers=headers, json=gemini_payload)
 
         if response.status_code != 200:
-            return JsonResponse({"error": "Failed to fetch data from Gemini API", "details": response.text}, status=response.status_code)
+            return JsonResponse({"error": "Failed to fetch data from Gemini API", 
+                                 "details": response.text}, status=response.status_code)
 
         # Parse Gemini API response
         gemini_response = response.json()
